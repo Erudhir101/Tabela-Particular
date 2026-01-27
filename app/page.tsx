@@ -15,7 +15,17 @@ import { useState } from "react";
 "ESPECIALIDADE": "GINECO",
 */
 export function SelectionFilter() {
-  const [procedimentos] = useState(procedimentosJson);
+  // const [procedimentos] = useState(procedimentosJson);
+  const [procedimentos] = useState(() => {
+    return [
+      ...new Map(
+        procedimentosJson.map((item) => [
+          item.DESCRIÇÃO.toLocaleLowerCase(),
+          item,
+        ]),
+      ).values(),
+    ];
+  });
   const [query, setQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<typeof procedimentosJson>(
     [],
@@ -61,7 +71,7 @@ export function SelectionFilter() {
         <ul className="text-sm mt-4 border rounded-md divide-y overflow-hidden">
           {filteredItems.map((item) => (
             <li
-              key={item.Lactobacillus}
+              key={item.DESCRIÇÃO}
               onClick={() => toggleItem(item)}
               className={`p-3 cursor-pointer hover:opacity-20 transition ${
                 selectedItems.includes(item)
@@ -137,12 +147,29 @@ export function SelectionFilter() {
               </span>
             }
           </span>
+          <span className="text-foreground font-bold">
+            Prazo para sair:
+            {
+              <span className="text-lg text-blue-500 font-normal px-2">
+                {selectedItems.length === 0
+                  ? 0
+                  : Math.max(
+                      ...selectedItems.map((item) =>
+                        Number.isNaN(Number(item.PRAZOS))
+                          ? 0
+                          : Number(item.PRAZOS),
+                      ),
+                    )}
+              </span>
+            }
+            Dias
+          </span>
         </div>
         <div className="text-sm flex flex-col flex-wrap gap-2 mt-2">
           {selectedItems.length > 0 ? (
             selectedItems.map((item) => (
               <span
-                key={item.Lactobacillus}
+                key={item.DESCRIÇÃO}
                 onClick={() => toggleItem(item)}
                 className="flex justify-between bg-blue-100 text-blue-700 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-200 transition"
               >
@@ -150,7 +177,9 @@ export function SelectionFilter() {
               </span>
             ))
           ) : (
-            <p className="text-gray-400 italic">Não selecionado ainda.</p>
+            <p className="text-xl text-gray-400 italic">
+              Não selecionado ainda.
+            </p>
           )}
         </div>
       </div>

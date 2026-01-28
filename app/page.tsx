@@ -14,6 +14,7 @@ import { useState } from "react";
 "não exibir para clinica": "",
 "ESPECIALIDADE": "GINECO",
 */
+
 export function SelectionFilter() {
   // const [procedimentos] = useState(procedimentosJson);
   const [procedimentos] = useState(() => {
@@ -38,6 +39,66 @@ export function SelectionFilter() {
         : parseFloat(item.PREÇO.replace(/,/g, ""));
     return acc + (price || 0);
   }, 0);
+
+  const generatePdf = async () => {
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+    const { Canvg } = await import("canvg");
+
+    const doc = new jsPDF();
+
+    // --- SVG to PNG Conversion ---
+    const svgString =
+      '<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#000"/></svg>';
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      const v = Canvg.fromString(ctx, svgString);
+      await v.render();
+      const pngDataUrl = canvas.toDataURL("image/png");
+      doc.addImage(pngDataUrl, "PNG", 14, 10, 20, 18);
+    }
+
+    // Header Text
+    doc.setFontSize(10);
+    doc.text("Nome da Empresa", 40, 15);
+    doc.text("Rua da Empresa, 123", 40, 20);
+    doc.text("email@empresa.com", 40, 25);
+
+    doc.setFontSize(16);
+    doc.text("Orçamento de Procedimentos", 14, 40);
+
+    const tableColumn = ["Descrição", "Preço (R$)"];
+    const tableRows: (string | number)[][] = [];
+
+    selectedItems.forEach((item) => {
+      const itemData = [
+        item.DESCRIÇÃO,
+        (typeof item.PREÇO === "number"
+          ? item.PREÇO
+          : parseFloat(item.PREÇO.replace(/,/g, ""))
+        ).toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+        }),
+      ];
+      tableRows.push(itemData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 45,
+      foot: [
+        [
+          "Total",
+          totalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+        ],
+      ],
+      footStyles: { fontStyle: "bold" },
+    });
+
+    doc.save("orcamento-procedimentos.pdf");
+  };
 
   const filteredItems = procedimentos.filter((item) =>
     item.DESCRIÇÃO.toLowerCase().includes(query.toLowerCase()),
@@ -165,6 +226,13 @@ export function SelectionFilter() {
             Dias
           </span>
         </div>
+        <button
+          onClick={generatePdf}
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          disabled={selectedItems.length === 0}
+        >
+          Gerar PDF
+        </button>
         <div className="text-sm flex flex-col flex-wrap gap-2 mt-2">
           {selectedItems.length > 0 ? (
             selectedItems.map((item) => (

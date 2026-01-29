@@ -15,6 +15,136 @@ interface Procedimento {
   [key: string]: any;
 }
 
+const AccordionItem = ({
+  item,
+  isSelected,
+  onToggle,
+}: {
+  item: Procedimento;
+  isSelected: boolean;
+  onToggle: (item: Procedimento) => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border-b border-slate-100 last:border-0 bg-white group">
+      {/* Header / Trigger */}
+      <div className="flex items-center justify-between p-4 transition-colors hover:bg-slate-50">
+        {/* Selection Area (Checkbox) */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(item);
+          }}
+          className="cursor-pointer p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"
+        >
+          <div
+            className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${
+              isSelected
+                ? "bg-blue-500 border-blue-500 text-white shadow-sm scale-110"
+                : "border-slate-300 bg-white group-hover:border-blue-300"
+            }`}
+          >
+            {isSelected && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-3.5 h-3.5"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
+        </div>
+
+        {/* Title & Chevron (Click to Expand) */}
+        <div
+          className="flex-1 flex items-center justify-between cursor-pointer ml-3 select-none"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <span
+            className={`font-medium text-sm transition-colors ${isOpen ? "text-blue-700" : "text-slate-700"}`}
+          >
+            {item.titulo || item.descricao}
+          </span>
+          <div
+            className={`transition-transform duration-300 ease-out text-slate-400 p-1 rounded-full hover:bg-slate-100 ${
+              isOpen ? "rotate-180 text-blue-500 bg-blue-50" : ""
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div
+        className={`grid transition-all duration-300 ease-in-out ${
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="p-4 bg-slate-50 border-t border-slate-100 text-sm text-slate-600 animate-fade-in space-y-3">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Descrição
+              </span>
+              <p className="mt-1 text-slate-700 leading-relaxed">
+                {item.descricao}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <div className="flex flex-col bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-sm">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  Preço
+                </span>
+                <span className="font-semibold text-green-600">
+                  {(typeof item.preco === "number"
+                    ? item.preco
+                    : parseFloat(String(item.preco).replace(/,/g, ""))
+                  ).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </span>
+              </div>
+
+              {item.prazo && (
+                <div className="flex flex-col bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-sm">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">
+                    Prazo
+                  </span>
+                  <span className="font-semibold text-blue-600">
+                    {item.prazo} dias
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export function SelectionFilter() {
   const [procedimentos, setProcedimentos] = useState<Procedimento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -192,39 +322,28 @@ export function SelectionFilter() {
             </span>
           </div>
 
-          <div className="mt-4 border border-slate-100 rounded-xl overflow-hidden max-h-125 overflow-y-auto custom-scrollbar">
-            <ul className="divide-y divide-slate-100">
-              {filteredItems.map((item) => {
-                const isSelected = selectedItems.includes(item);
-                return (
-                  <li
-                    key={item.titulo}
-                    onClick={() => toggleItem(item)}
-                    className={`p-4 cursor-pointer transition-all duration-200 flex items-center justify-between group ${
-                      isSelected
-                        ? "bg-blue-50 text-blue-900"
-                        : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    <span className="font-medium text-sm">{item.titulo}</span>
-                    <span
-                      className={`ml-3 shrink-0 w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
-                        isSelected
-                          ? "bg-blue-500 border-blue-500 text-white shadow-sm"
-                          : "border-slate-300 group-hover:border-blue-300 text-transparent"
-                      }`}
-                    >
-                      ✓
-                    </span>
-                  </li>
-                );
-              })}
+          <div className="mt-4 border border-slate-100 rounded-xl overflow-hidden max-h-125 overflow-y-auto custom-scrollbar shadow-sm bg-white">
+            <div className="divide-y divide-slate-100">
+              {filteredItems.map((item) => (
+                <AccordionItem
+                  key={item.descricao}
+                  item={item}
+                  isSelected={selectedItems.includes(item)}
+                  onToggle={toggleItem}
+                />
+              ))}
               {filteredItems.length === 0 && (
-                <li className="p-8 text-center text-slate-400 italic">
-                  Nenhum procedimento encontrado.
-                </li>
+                <div className="p-8 text-center flex flex-col items-center justify-center text-slate-400">
+                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3 text-2xl">
+                    🔍
+                  </div>
+                  <p className="font-medium">Nenhum procedimento encontrado.</p>
+                  <p className="text-xs mt-1 text-slate-400">
+                    Tente buscar por outro termo
+                  </p>
+                </div>
               )}
-            </ul>
+            </div>
           </div>
         </div>
       </div>

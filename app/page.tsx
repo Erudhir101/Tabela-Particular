@@ -1,50 +1,57 @@
 "use client";
-// import Papa from "papaparse";
-import procedimentosJson from "./tabela-procedimentos.json";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabaseClient";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { Canvg } from "canvg";
 
-/*
-"Lactobacillus": 1,
-"DESCRIÇÃO": "BIOPSIA DE ENDOMETRIO",
-"PREÇO": 275,
-"DESCRIÇÃO INTERNA": "Avaliar se foi solicitado IMUNO-HISTOQUÍMICA",
-"PRAZOS": "",
-"EXAME (PARCEIROS)": "BIOPSIA DE ENDOMETRIO",
-"DESCRIÇÃO (PARCEIROS)": "Avaliar se foi solicitado IMUNO-HISTOQUÍMICA",
-"não exibir para clinica": "",
-"ESPECIALIDADE": "GINECO",
-*/
+interface Procedimento {
+  Lactobacillus: number;
+  descricao: string;
+  preco: number;
+  prazo: number;
+  especialidade: any;
+  titulo: string;
+  [key: string]: any;
+}
 
 export function SelectionFilter() {
-  // const [procedimentos] = useState(procedimentosJson);
-  const [procedimentos] = useState(() => {
-    return [
-      ...new Map(
-        procedimentosJson.map((item) => [
-          item.DESCRIÇÃO.toLocaleLowerCase(),
-          item,
-        ]),
-      ).values(),
-    ];
-  });
+  const [procedimentos, setProcedimentos] = useState<Procedimento[]>([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [selectedItems, setSelectedItems] = useState<typeof procedimentosJson>(
-    [],
-  );
+  const [selectedItems, setSelectedItems] = useState<Procedimento[]>([]);
+
+  useEffect(() => {
+    const fetchProcedimentos = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from("particular").select("*");
+
+      if (error) {
+        console.error("Error fetching data from Supabase:", error);
+      } else if (data) {
+        console.log("todas as datas", data);
+        const uniqueData = [
+          ...new Map(
+            data.map((item) => [item.descricao.toLocaleLowerCase(), item]),
+          ).values(),
+        ];
+        setProcedimentos(uniqueData);
+      }
+      setLoading(false);
+    };
+
+    fetchProcedimentos();
+  }, []);
 
   const totalValue = selectedItems.reduce((acc, item) => {
     const price =
-      typeof item.PREÇO === "number"
-        ? item.PREÇO
-        : parseFloat(item.PREÇO.replace(/,/g, ""));
+      typeof item.preco === "number"
+        ? item.preco
+        : parseFloat(String(item.preco).replace(/,/g, ""));
     return acc + (price || 0);
   }, 0);
 
   const generatePdf = async () => {
-    const { default: jsPDF } = await import("jspdf");
-    const { default: autoTable } = await import("jspdf-autotable");
-    const { Canvg } = await import("canvg");
-
     const doc = new jsPDF();
 
     // --- SVG to PNG Conversion ---
@@ -61,7 +68,7 @@ export function SelectionFilter() {
 
     // Header Text
     doc.setFontSize(10);
-    doc.text("Nome da Empresa", 40, 15);
+    doc.text("Laboratório Lab", 40, 15);
     doc.text("Rua da Empresa, 123", 40, 20);
     doc.text("email@empresa.com", 40, 25);
 
@@ -73,10 +80,10 @@ export function SelectionFilter() {
 
     selectedItems.forEach((item) => {
       const itemData = [
-        item.DESCRIÇÃO,
-        (typeof item.PREÇO === "number"
-          ? item.PREÇO
-          : parseFloat(item.PREÇO.replace(/,/g, ""))
+        item.descricao,
+        (typeof item.preco === "number"
+          ? item.preco
+          : parseFloat(String(item.preco).replace(/,/g, ""))
         ).toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
         }),
@@ -101,10 +108,10 @@ export function SelectionFilter() {
   };
 
   const filteredItems = procedimentos.filter((item) =>
-    item.DESCRIÇÃO.toLowerCase().includes(query.toLowerCase()),
+    item.descricao.toLowerCase().includes(query.toLowerCase()),
   );
 
-  const toggleItem = (item: (typeof procedimentosJson)[0]) => {
+  const toggleItem = (item: Procedimento) => {
     if (selectedItems.includes(item)) {
       setSelectedItems(selectedItems.filter((i) => i !== item));
     } else {
@@ -112,6 +119,10 @@ export function SelectionFilter() {
     }
     setQuery("");
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="p-10 mx-auto gap-5 flex flex-col sm:flex-row sm:items-center">
@@ -132,7 +143,7 @@ export function SelectionFilter() {
         <ul className="text-sm mt-4 border rounded-md divide-y overflow-hidden">
           {filteredItems.map((item) => (
             <li
-              key={item.DESCRIÇÃO}
+              key={item.descricao}
               onClick={() => toggleItem(item)}
               className={`p-3 cursor-pointer hover:opacity-20 transition ${
                 selectedItems.includes(item)
@@ -140,12 +151,12 @@ export function SelectionFilter() {
                   : ""
               }`}
             >
-              {item.DESCRIÇÃO} {selectedItems.includes(item) && "✓"}
+              {item.descricao} {selectedItems.includes(item) && "✓"}
             </li>
           ))}
         </ul>
       </div>
-      <div className="self-stretch p-5 flex flex-col gap-5 min-w-1/2 border border-foreground">
+      <div className="self-stretch p-5 flex flex-col gap-5 min-w-1/2 border rounded-md border-foreground">
         <div className="flex flex-col justify-between">
           <span className="text-foreground font-bold">
             Preço Total:
@@ -168,7 +179,7 @@ export function SelectionFilter() {
               </span>
             }
           </span>
-          <span className="text-foreground font-bold">
+          <span className="text-foreground font-bold mb-4">
             Preço PIX:
             {
               <span className="text-lg text-green-500 font-normal pl-2">
@@ -181,7 +192,7 @@ export function SelectionFilter() {
               </span>
             }
           </span>
-          <h2 className="text-2xl text-bold bg-blue-600">
+          <h2 className="text-2xl text-bold bg-blue-600 p-2 rounded-sm text-center mb-2">
             Convênios Não Atendidos pelo LAB
           </h2>
           <span className="text-foreground font-bold">
@@ -192,7 +203,7 @@ export function SelectionFilter() {
               </span>
             }
           </span>
-          <span className="text-foreground font-bold">
+          <span className="text-foreground font-bold mb-4">
             Preço Cartão 2X:
             {
               <span className="text-lg text-green-500 font-normal pl-2">
@@ -216,9 +227,9 @@ export function SelectionFilter() {
                   ? 0
                   : Math.max(
                       ...selectedItems.map((item) =>
-                        Number.isNaN(Number(item.PRAZOS))
+                        Number.isNaN(Number(item.prazo))
                           ? 0
-                          : Number(item.PRAZOS),
+                          : Number(item.prazo),
                       ),
                     )}
               </span>
@@ -228,7 +239,7 @@ export function SelectionFilter() {
         </div>
         <button
           onClick={generatePdf}
-          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed font-bold py-2 px-4 rounded"
           disabled={selectedItems.length === 0}
         >
           Gerar PDF
@@ -237,15 +248,15 @@ export function SelectionFilter() {
           {selectedItems.length > 0 ? (
             selectedItems.map((item) => (
               <span
-                key={item.DESCRIÇÃO}
+                key={item.descricao}
                 onClick={() => toggleItem(item)}
                 className="flex justify-between bg-blue-100 text-blue-700 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-200 transition"
               >
-                {item.DESCRIÇÃO} {<span className="font-bold">×</span>}
+                {item.descricao} {<span className="font-bold">×</span>}
               </span>
             ))
           ) : (
-            <p className="text-xl text-gray-400 italic">
+            <p className="text-xl text-gray-600 text-center italic">
               Não selecionado ainda.
             </p>
           )}

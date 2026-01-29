@@ -22,6 +22,7 @@ export function SelectionFilter() {
   const [selectedItems, setSelectedItems] = useState<Procedimento[]>([]);
 
   useEffect(() => {
+    console.log("Supabase URL from env:", process.env.NEXT_PUBLIC_SUPABASE_URL);
     const fetchProcedimentos = async () => {
       setLoading(true);
       const { data, error } = await supabase.from("particular").select("*");

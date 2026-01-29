@@ -122,154 +122,254 @@ export function SelectionFilter() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3 animate-fade-in">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <p className="text-slate-500 font-medium">
+            Carregando procedimentos...
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="p-10 mx-auto gap-5 flex flex-col sm:flex-row sm:items-center">
-      <div className="flex-1 min-w-1/2">
-        <input
-          type="text"
-          placeholder="Digite o Procedimento..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && filteredItems.length > 0) {
-              toggleItem(filteredItems[0]);
-            }
-          }}
-          className="border p-2 w-full rounded shadow-sm text-foreground"
-        />
+  // Preços calculados
+  const precoCartao2X =
+    selectedItems.length === 1 &&
+    selectedItems[0].DESCRIÇÃO === "PLACENTA, CORDÃO E MEMBRANAS"
+      ? 480
+      : selectedItems.length >= 2
+        ? 0.96 * totalValue
+        : totalValue;
 
-        <ul className="text-sm mt-4 border rounded-md divide-y overflow-hidden">
-          {filteredItems.map((item) => (
-            <li
-              key={item.descricao}
-              onClick={() => toggleItem(item)}
-              className={`p-3 cursor-pointer hover:opacity-20 transition ${
-                selectedItems.includes(item)
-                  ? "bg-foreground text-background cursor-pointer"
-                  : ""
-              }`}
-            >
-              {item.descricao} {selectedItems.includes(item) && "✓"}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="self-stretch p-5 flex flex-col gap-5 min-w-1/2 border rounded-md border-foreground">
-        <div className="flex flex-col justify-between">
-          <span className="text-foreground font-bold">
-            Preço Total:
-            {
-              <span className="text-lg text-green-500 font-normal pl-2">
-                {totalValue}
-              </span>
-            }
-          </span>
-          <span className="text-foreground font-bold">
-            Preço Cartão 2X:
-            {
-              <span className="text-lg text-green-500 font-normal pl-2">
-                {selectedItems.length === 1 &&
-                selectedItems[0].DESCRIÇÃO === "PLACENTA, CORDÃO E MEMBRANAS"
-                  ? 480
-                  : selectedItems.length >= 2
-                    ? 0.96 * totalValue
-                    : totalValue}
-              </span>
-            }
-          </span>
-          <span className="text-foreground font-bold mb-4">
-            Preço PIX:
-            {
-              <span className="text-lg text-green-500 font-normal pl-2">
-                {selectedItems.length === 1 &&
-                selectedItems[0].DESCRIÇÃO === "PLACENTA, CORDÃO E MEMBRANAS"
-                  ? 450
-                  : selectedItems.length >= 2
-                    ? 0.92 * totalValue
-                    : totalValue}
-              </span>
-            }
-          </span>
-          <h2 className="text-2xl text-bold bg-blue-600 p-2 rounded-sm text-center mb-2">
-            Convênios Não Atendidos pelo LAB
+  const precoPix =
+    selectedItems.length === 1 &&
+    selectedItems[0].DESCRIÇÃO === "PLACENTA, CORDÃO E MEMBRANAS"
+      ? 450
+      : selectedItems.length >= 2
+        ? 0.92 * totalValue
+        : totalValue;
+
+  const precoPixNaoAtendido =
+    totalValue > 500 ? 0.75 * totalValue : 0.85 * totalValue;
+  const precoCartao2XNaoAtendido =
+    totalValue > 500 ? 0.75 * totalValue : 0.85 * totalValue;
+
+  const prazoMaximo =
+    selectedItems.length === 0
+      ? 0
+      : Math.max(
+          ...selectedItems.map((item) =>
+            Number.isNaN(Number(item.prazo)) ? 0 : Number(item.prazo),
+          ),
+        );
+
+  return (
+    <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in-up">
+      {/* Coluna da Esquerda - Busca e Lista */}
+      <div className="lg:col-span-7 flex flex-col gap-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <span className="p-2 bg-blue-50 text-blue-600 rounded-lg">🔍</span>
+            Buscar Procedimentos
           </h2>
-          <span className="text-foreground font-bold">
-            Preço PIX:
-            {
-              <span className="text-lg text-green-500 font-normal pl-2">
-                {totalValue > 500 ? 0.75 * totalValue : 0.85 * totalValue}
-              </span>
-            }
-          </span>
-          <span className="text-foreground font-bold mb-4">
-            Preço Cartão 2X:
-            {
-              <span className="text-lg text-green-500 font-normal pl-2">
-                {totalValue > 500 ? 0.75 * totalValue : 0.85 * totalValue}
-              </span>
-            }
-          </span>
-          <span className="text-foreground font-bold">
-            Quantidade de Exames:
-            {
-              <span className="text-lg text-blue-500 font-normal pl-2">
-                {selectedItems.length}
-              </span>
-            }
-          </span>
-          <span className="text-foreground font-bold">
-            Prazo para sair:
-            {
-              <span className="text-lg text-blue-500 font-normal px-2">
-                {selectedItems.length === 0
-                  ? 0
-                  : Math.max(
-                      ...selectedItems.map((item) =>
-                        Number.isNaN(Number(item.prazo))
-                          ? 0
-                          : Number(item.prazo),
-                      ),
-                    )}
-              </span>
-            }
-            Dias
-          </span>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Digite o nome do procedimento..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && filteredItems.length > 0) {
+                  toggleItem(filteredItems[0]);
+                }
+              }}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 hover:border-slate-300 bg-white/70 backdrop-blur-sm text-slate-800 placeholder:text-slate-400 pl-11"
+            />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+              ⚡
+            </span>
+          </div>
+
+          <div className="mt-4 border border-slate-100 rounded-xl overflow-hidden max-h-125 overflow-y-auto custom-scrollbar">
+            <ul className="divide-y divide-slate-100">
+              {filteredItems.map((item) => {
+                const isSelected = selectedItems.includes(item);
+                return (
+                  <li
+                    key={item.titulo}
+                    onClick={() => toggleItem(item)}
+                    className={`p-4 cursor-pointer transition-all duration-200 flex items-center justify-between group ${
+                      isSelected
+                        ? "bg-blue-50 text-blue-900"
+                        : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <span className="font-medium text-sm">{item.titulo}</span>
+                    <span
+                      className={`ml-3 shrink-0 w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
+                        isSelected
+                          ? "bg-blue-500 border-blue-500 text-white shadow-sm"
+                          : "border-slate-300 group-hover:border-blue-300 text-transparent"
+                      }`}
+                    >
+                      ✓
+                    </span>
+                  </li>
+                );
+              })}
+              {filteredItems.length === 0 && (
+                <li className="p-8 text-center text-slate-400 italic">
+                  Nenhum procedimento encontrado.
+                </li>
+              )}
+            </ul>
+          </div>
         </div>
-        <button
-          onClick={generatePdf}
-          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed font-bold py-2 px-4 rounded"
-          disabled={selectedItems.length === 0}
-        >
-          Gerar PDF
-        </button>
-        <div className="text-sm flex flex-col flex-wrap gap-2 mt-2">
-          {selectedItems.length > 0 ? (
-            selectedItems.map((item) => (
-              <span
-                key={item.descricao}
-                onClick={() => toggleItem(item)}
-                className="flex justify-between bg-blue-100 text-blue-700 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-200 transition"
-              >
-                {item.descricao} {<span className="font-bold">×</span>}
+      </div>
+
+      {/* Coluna da Direita - Resumo e Orçamento */}
+      <div className="lg:col-span-5 flex flex-col gap-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-6 p-2 flex items-center gap-2">
+            Resumo do Orçamento
+          </h2>
+
+          <div className="space-y-4">
+            {/* Cards de Preço */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex justify-between items-center">
+              <span className="text-sm font-medium text-slate-600">
+                Preço Total
               </span>
-            ))
-          ) : (
-            <p className="text-xl text-gray-600 text-center italic">
-              Não selecionado ainda.
-            </p>
+              <span className="text-lg font-bold text-slate-800">
+                {totalValue.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-4 rounded-xl bg-green-50 border border-green-100 flex flex-col">
+                <span className="text-xs font-semibold text-green-700 uppercase tracking-wider mb-1">
+                  Pagamento PIX
+                </span>
+                <span className="text-xl font-bold text-green-700">
+                  {precoPix.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </span>
+                <span className="text-xs text-green-600 mt-1">
+                  {selectedItems.length >= 2 ? "Desconto aplicado" : "À vista"}
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 flex flex-col">
+                <span className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-1">
+                  Cartão 2x
+                </span>
+                <span className="text-xl font-bold text-blue-700">
+                  {precoCartao2X.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </span>
+              </div>
+            </div>
+
+            <div className="my-6 border-t border-dashed border-slate-200"></div>
+
+            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
+              <h3 className="text-sm font-bold text-orange-800 mb-3 flex items-center">
+                <span className="mr-2">⚠️</span> Convênios Não Atendidos
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-orange-700">Preço PIX:</span>
+                  <span className="font-bold text-orange-800">
+                    {precoPixNaoAtendido.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-orange-700">Cartão 2x:</span>
+                  <span className="font-bold text-orange-800">
+                    {precoCartao2XNaoAtendido.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-slate-600 pt-2">
+              <span>Quantidade:</span>
+              <span className="font-medium bg-slate-100 px-2 py-1 rounded-full">
+                {selectedItems.length} exames
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-slate-600">
+              <span>Prazo estimado:</span>
+              <span className="font-medium bg-slate-100 px-2 py-1 rounded-full">
+                {prazoMaximo} dias úteis
+              </span>
+            </div>
+
+            <button
+              onClick={generatePdf}
+              disabled={selectedItems.length === 0}
+              className="w-full mt-4 px-4 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0"
+            >
+              Gerar PDF do Orçamento
+            </button>
+          </div>
+
+          {/* Tags Selecionadas */}
+          {selectedItems.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-slate-100">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">
+                Itens Selecionados
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {selectedItems.map((item) => (
+                  <span
+                    key={item.descricao}
+                    onClick={() => toggleItem(item)}
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 hover:bg-red-100 hover:text-red-700 cursor-pointer transition-colors duration-200"
+                  >
+                    {item.descricao}
+                    <span className="ml-1.5 font-bold text-lg leading-none">
+                      ×
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>
     </div>
   );
 }
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start mt-3">
-      <h1 className="text-4xl font-bold mb-15">Tabela Particular</h1>
+    <main className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto mb-10 text-center animate-fade-in-down">
+        <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
+          <span className="bg-linear-to-r from-blue-900 via-blue-700 to-indigo-800 bg-clip-text text-transparent">
+            Tabela Particular
+          </span>
+        </h1>
+        <p className="text-slate-500 text-lg">
+          Selecione os procedimentos para gerar um orçamento detalhado
+        </p>
+      </div>
       <SelectionFilter />
     </main>
   );

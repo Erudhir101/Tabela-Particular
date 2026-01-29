@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Tabela Particular - Flow LAB",
   description: "Orçamento de procedimentos laboratoriais",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

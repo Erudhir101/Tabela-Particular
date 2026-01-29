@@ -27,10 +27,8 @@ const AccordionItem = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-slate-100 last:border-0 bg-white group">
-      {/* Header / Trigger */}
-      <div className="flex items-center justify-between p-4 transition-colors hover:bg-slate-50">
-        {/* Selection Area (Checkbox) */}
+    <div className="border-b border-slate-100 last:border-0 bg-white opacity-80 group">
+      <div className="flex items-center justify-between p-4 transition-colors hover:bg-slate-100">
         <div
           onClick={(e) => {
             e.stopPropagation();
@@ -186,41 +184,59 @@ export function SelectionFilter() {
     const doc = new jsPDF();
 
     // --- SVG to PNG Conversion ---
-    const svgString =
-      '<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#000"/></svg>';
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      const v = Canvg.fromString(ctx, svgString);
-      await v.render();
-      const pngDataUrl = canvas.toDataURL("image/png");
-      doc.addImage(pngDataUrl, "PNG", 14, 10, 20, 18);
+    try {
+      const response = await fetch("/logo-pdf.svg");
+      if (response.ok) {
+        const svgString = await response.text();
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          canvas.width = 1578;
+          canvas.height = 796;
+          const v = Canvg.fromString(ctx, svgString);
+          await v.render();
+          const pngDataUrl = canvas.toDataURL("image/png");
+          doc.addImage(pngDataUrl, "PNG", 14, 10, 40, 20);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading logo PDF:", error);
     }
 
     // Header Text
-    doc.setFontSize(10);
-    doc.text("Laboratório Lab", 40, 15);
-    doc.text("Rua da Empresa, 123", 40, 20);
-    doc.text("email@empresa.com", 40, 25);
+    doc.setFontSize(12);
+    doc.text("Laboratório Lab", 80, 15);
+    doc.text("SHLS 716 BLOCO E, CENTRO MÉDICO BRASILIA, ASA SUL", 80, 20);
+    doc.text("lab@laboratoriolab.com.br", 80, 25);
 
     doc.setFontSize(16);
     doc.text("Orçamento de Procedimentos", 14, 40);
 
-    const tableColumn = ["Descrição", "Preço (R$)"];
+    const tableColumn = ["Título", "Preço (R$)", "Prazo"];
     const tableRows: (string | number)[][] = [];
 
     selectedItems.forEach((item) => {
       const itemData = [
-        item.descricao,
+        item.titulo,
         (typeof item.preco === "number"
           ? item.preco
           : parseFloat(String(item.preco).replace(/,/g, ""))
         ).toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
         }),
+        item.prazo ? `${item.prazo} dias` : "-",
       ];
       tableRows.push(itemData);
     });
+
+    const maxPrazo =
+      selectedItems.length === 0
+        ? 0
+        : Math.max(
+            ...selectedItems.map((item) =>
+              Number.isNaN(Number(item.prazo)) ? 0 : Number(item.prazo),
+            ),
+          );
 
     autoTable(doc, {
       head: [tableColumn],
@@ -230,6 +246,7 @@ export function SelectionFilter() {
         [
           "Total",
           totalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+          maxPrazo > 0 ? `${maxPrazo} dias` : "-",
         ],
       ],
       footStyles: { fontStyle: "bold" },
@@ -299,7 +316,7 @@ export function SelectionFilter() {
     <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in-up">
       {/* Coluna da Esquerda - Busca e Lista */}
       <div className="lg:col-span-7 flex flex-col gap-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white opacity-90 rounded-2xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <span className="p-2 bg-blue-50 text-blue-600 rounded-lg">🔍</span>
             Buscar Procedimentos
@@ -350,7 +367,7 @@ export function SelectionFilter() {
 
       {/* Coluna da Direita - Resumo e Orçamento */}
       <div className="lg:col-span-5 flex flex-col gap-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-6">
+        <div className="bg-white opacity-90 rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-6 p-2 flex items-center gap-2">
             Resumo do Orçamento
           </h2>
@@ -478,7 +495,7 @@ export function SelectionFilter() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-slate-300 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto mb-10 text-center animate-fade-in-down">
         <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
           <span className="bg-linear-to-r from-blue-900 via-blue-700 to-indigo-800 bg-clip-text text-transparent">

@@ -256,7 +256,7 @@ export function SelectionFilter() {
   };
 
   const filteredItems = procedimentos.filter((item) =>
-    item.descricao.toLowerCase().includes(query.toLowerCase()),
+    item.titulo.toLowerCase().includes(query.toLowerCase()),
   );
 
   const toggleItem = (item: Procedimento) => {

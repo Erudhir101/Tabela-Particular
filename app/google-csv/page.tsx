@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { Canvg } from "canvg";
 
 // Optimized Cell Component to prevent typing lag
 const EditableCell = ({
@@ -132,6 +135,97 @@ export default function GoogleCsvPage() {
     );
   };
 
+  const generatePdf = async () => {
+    if (selectedRows.length === 0) {
+      alert("Selecione pelo menos uma linha para gerar o PDF.");
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    // --- SVG to PNG Conversion ---
+    try {
+      const response = await fetch("/logo-pdf.svg");
+      if (response.ok) {
+        const svgString = await response.text();
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          canvas.width = 1578;
+          canvas.height = 796;
+          const v = Canvg.fromString(ctx, svgString);
+          await v.render();
+          const pngDataUrl = canvas.toDataURL("image/png");
+          doc.addImage(pngDataUrl, "PNG", 14, 10, 40, 20);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading logo PDF:", error);
+    }
+
+    // Header Text
+    doc.setFontSize(12);
+    doc.text("Laboratório Lab", 80, 15);
+    doc.text("SHLS 716 BLOCO E, CENTRO MÉDICO BRASILIA, ASA SUL", 80, 20);
+    doc.text("lab@laboratoriolab.com.br", 80, 25);
+
+    doc.setFontSize(16);
+    doc.text("Orçamento de Procedimentos", 14, 40);
+
+    const headerRow = data[3] || [];
+
+    // Find column indices
+    let descIndex = headerRow.findIndex(
+      (h) => h && h.toLowerCase().includes("descrição"),
+    );
+    if (descIndex === -1)
+      descIndex = headerRow.findIndex(
+        (h) => h && h.toLowerCase().includes("descricao"),
+      );
+
+    let priceIndex = headerRow.findIndex(
+      (h) => h && h.toLowerCase().includes("preço de venda"),
+    );
+    if (priceIndex === -1)
+      priceIndex = headerRow.findIndex(
+        (h) => h && h.toLowerCase().includes("preco de venda"),
+      );
+    if (priceIndex === -1)
+      priceIndex = headerRow.findIndex(
+        (h) => h && h.toLowerCase().includes("preço"),
+      );
+
+    if (descIndex === -1 || priceIndex === -1) {
+      alert(
+        "Colunas 'Descrição' ou 'Preço de Venda' não encontradas. Verifique o cabeçalho da planilha.",
+      );
+      return;
+    }
+
+    const tableColumn = ["Nome do Exame", "Preço"];
+    const tableRows: string[][] = [];
+
+    const sortedRows = [...selectedRows].sort((a, b) => a - b);
+
+    sortedRows.forEach((rowIndex) => {
+      const row = data[rowIndex];
+      if (!row) return;
+
+      const desc = row[descIndex] || "";
+      const price = row[priceIndex] || "";
+
+      tableRows.push([desc, price]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 45,
+    });
+
+    doc.save(`orcamento-pardini-${new Date().getTime()}.pdf`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -152,14 +246,24 @@ export default function GoogleCsvPage() {
           </h1>
           <div className="flex items-center gap-3">
             {selectedRows.length > 0 && (
-              <button
-                onClick={deleteSelectedRows}
-                disabled={saving}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-              >
-                <span>🗑️</span>
-                Excluir ({selectedRows.length})
-              </button>
+              <>
+                <button
+                  onClick={deleteSelectedRows}
+                  disabled={saving}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  <span>🗑️</span>
+                  Excluir ({selectedRows.length})
+                </button>
+                <button
+                  onClick={generatePdf}
+                  disabled={saving}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  <span>📄</span>
+                  Gerar PDF ({selectedRows.length})
+                </button>
+              </>
             )}
             <button
               onClick={addRow}
@@ -213,7 +317,7 @@ export default function GoogleCsvPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {displayData.map((row, rowIndex) => {
-                  const actualIndex = rowIndex + 4; // Offset to match the original data index
+                  const actualIndex = rowIndex + 4;
                   return (
                     <tr
                       key={actualIndex}

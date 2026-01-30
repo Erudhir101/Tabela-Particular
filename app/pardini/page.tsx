@@ -206,6 +206,7 @@ export default function GoogleCsvPage() {
     const tableRows: string[][] = [];
 
     const sortedRows = [...selectedRows].sort((a, b) => a - b);
+    let totalPrice = 0;
 
     sortedRows.forEach((rowIndex) => {
       const row = data[rowIndex];
@@ -214,14 +215,43 @@ export default function GoogleCsvPage() {
       const desc = row[descIndex] || "";
       const price = row[priceIndex] || "";
 
+      const priceClean = price
+        .replace(/[^\d,.-]/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".");
+      const priceValue = parseFloat(priceClean) || 0;
+      totalPrice += priceValue;
+
       tableRows.push([desc, price]);
+    });
+
+    const formattedTotal = totalPrice.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     });
 
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
+      foot: [["Total", formattedTotal]],
+      footStyles: {
+        fillColor: [41, 128, 185], // Default header blue color
+        textColor: 255,
+        fontStyle: "bold",
+      },
       startY: 45,
     });
+
+    const finalY = (doc as any).lastAutoTable.finalY || 45;
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    doc.setFontSize(10);
+    doc.text(
+      "Esse documento é apenas uma estimativa de valores, pode haver variações com o tempo.",
+      pageWidth / 2,
+      finalY + 15,
+      { align: "center" },
+    );
 
     doc.save(`orcamento-pardini-${new Date().getTime()}.pdf`);
   };

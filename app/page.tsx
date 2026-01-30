@@ -196,9 +196,9 @@ export function SelectionFilter() {
         : totalValue;
 
   const precoPixNaoAtendido =
-    totalValue > 500 ? 0.75 * totalValue : 0.85 * totalValue;
-  const precoCartao2XNaoAtendido =
     totalValue > 500 ? 0.7 * totalValue : 0.8 * totalValue;
+  const precoCartao2XNaoAtendido =
+    totalValue > 500 ? 0.75 * totalValue : 0.85 * totalValue;
 
   const prazoMaximo =
     selectedItems.length === 0

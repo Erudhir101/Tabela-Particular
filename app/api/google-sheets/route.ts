@@ -32,6 +32,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { values } = body;
 
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range,
+    });
+
     await sheets.spreadsheets.values.update({
       spreadsheetId,
       range,

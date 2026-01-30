@@ -157,7 +157,6 @@ export function SelectionFilter() {
       if (error) {
         console.error("Error fetching data from Supabase:", error);
       } else if (data) {
-        console.log("todas as datas", data);
         const uniqueData = [
           ...new Map(
             data.map((item) => [item.descricao.toLocaleLowerCase(), item]),

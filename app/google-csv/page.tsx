@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 // Optimized Cell Component to prevent typing lag
 const EditableCell = ({
@@ -36,10 +36,20 @@ export default function GoogleCsvPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [shouldScroll, setShouldScroll] = useState(false);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (shouldScroll && tableContainerRef.current) {
+      tableContainerRef.current.scrollTop =
+        tableContainerRef.current.scrollHeight;
+      setShouldScroll(false);
+    }
+  }, [data, shouldScroll]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -88,16 +98,19 @@ export default function GoogleCsvPage() {
     if (!data || data.length === 0) return;
 
     const numCols = data[0]?.length || 7;
+    console.log("tamanho ", data.length);
     const newRow = Array(numCols).fill("");
 
     const newData = [...data, newRow];
 
     setData(newData);
+    setShouldScroll(true);
     await saveChanges(newData);
   };
 
   const deleteSelectedRows = async () => {
     if (selectedRows.length === 0) return;
+    console.log(selectedRows);
     if (
       !confirm(
         `Tem certeza que deseja excluir ${selectedRows.length} linha(s)?`,
@@ -127,8 +140,6 @@ export default function GoogleCsvPage() {
     );
   }
 
-  // Header is now the 3rd row (index 2)
-  // Display from 4th row onwards (index 3 onwards)
   const displayData = data.slice(4);
   const headerRow = data[3] || [];
 
@@ -179,7 +190,10 @@ export default function GoogleCsvPage() {
         )}
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col min-h-0">
-          <div className="overflow-auto flex-1 custom-scrollbar">
+          <div
+            ref={tableContainerRef}
+            className="overflow-auto flex-1 custom-scrollbar"
+          >
             <table className="w-full border-collapse">
               <thead className="sticky top-0 z-10">
                 <tr className="bg-slate-50 border-b border-slate-200">
@@ -199,7 +213,7 @@ export default function GoogleCsvPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {displayData.map((row, rowIndex) => {
-                  const actualIndex = rowIndex + 3; // Offset to match the original data index
+                  const actualIndex = rowIndex + 4; // Offset to match the original data index
                   return (
                     <tr
                       key={actualIndex}

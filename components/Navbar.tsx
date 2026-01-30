@@ -27,7 +27,7 @@ export default function Navbar() {
                 Tabela Particular
               </Link>
               <Link
-                href="/google-csv"
+                href="/pardini"
                 className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
                   pathname === "/google-csv"
                     ? "border-blue-500 text-slate-900"

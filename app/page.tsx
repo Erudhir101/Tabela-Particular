@@ -60,7 +60,6 @@ const AccordionItem = ({
           </div>
         </div>
 
-        {/* Title & Chevron (Click to Expand) */}
         <div
           className="flex-1 flex items-center justify-between cursor-pointer ml-3 select-none"
           onClick={() => setIsOpen(!isOpen)}
@@ -92,7 +91,6 @@ const AccordionItem = ({
         </div>
       </div>
 
-      {/* Content */}
       <div
         className={`grid transition-all duration-300 ease-in-out ${
           isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
@@ -325,7 +323,9 @@ export function SelectionFilter() {
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="bg-white opacity-90 rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="p-2 bg-blue-50 text-blue-600 rounded-lg">🔍</span>
+              <span className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                🔍
+              </span>
               Buscar Procedimentos
             </h2>
             <div className="relative">
@@ -504,7 +504,7 @@ export function SelectionFilter() {
 
       {/* Modal de Confirmação de Convênio */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 transition-all duration-300">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-9999 p-4 transition-all duration-300">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up border border-slate-100">
             <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 mx-auto">
               <span className="text-3xl">📋</span>
@@ -550,8 +550,8 @@ export function SelectionFilter() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-300 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto mb-10 text-center animate-fade-in-down">
+    <main className="h-full bg-slate-300 py-6 px-4 sm:px-6 lg:px-8 overflow-y-auto">
+      <div className="max-w-7xl mx-auto mb-8 text-center animate-fade-in-down">
         <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
           <span className="bg-linear-to-r from-blue-900 via-blue-700 to-indigo-800 bg-clip-text text-transparent">
             Tabela Particular

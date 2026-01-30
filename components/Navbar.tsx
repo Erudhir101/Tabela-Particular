@@ -1,0 +1,61 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+export default function Navbar() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="min-w-screen bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-center h-16">
+          <div className="flex justify-between">
+            <div className="shrink-0 flex items-center">
+              <span className="text-xl font-bold bg-linear-to-r from-blue-900 via-blue-700 to-indigo-800 bg-clip-text text-transparent">
+                Flow LAB
+              </span>
+            </div>
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <Link
+                href="/"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
+                  pathname === "/"
+                    ? "border-blue-500 text-slate-900"
+                    : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                }`}
+              >
+                Tabela Particular
+              </Link>
+              <Link
+                href="/google-csv"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
+                  pathname === "/google-csv"
+                    ? "border-blue-500 text-slate-900"
+                    : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                }`}
+              >
+                Google Docs CSV
+              </Link>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <div className="sm:hidden flex items-center space-x-4">
+              <Link
+                href="/"
+                className={`text-sm font-medium ${pathname === "/" ? "text-blue-600" : "text-slate-500"}`}
+              >
+                Home
+              </Link>
+              <Link
+                href="/google-csv"
+                className={`text-sm font-medium ${pathname === "/google-csv" ? "text-blue-600" : "text-slate-500"}`}
+              >
+                Google
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}

@@ -324,12 +324,16 @@ export function SelectionFilter() {
       <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in-up">
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="bg-white opacity-90 rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                🔍
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                  🔍
+                </span>
+                Buscar Procedimentos
+              </div>
+              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+                {procedimentos.length} itens
               </span>
-              Buscar Procedimentos
-              <span>{procedimentos.length}</span>
             </h2>
             <div className="relative">
               <input

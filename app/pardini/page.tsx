@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Canvg } from "canvg";
@@ -44,20 +44,20 @@ export default function GoogleCsvPage() {
 
   const headerRow = data[3] || [];
 
-  const filteredDisplayData = useMemo(() => {
-    const rawDisplayData = data.slice(4);
-    const rowsWithIndex = rawDisplayData.map((row, index) => ({
-      row,
-      originalIndex: index + 4,
-    }));
+  const normalize = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
 
+  const rawDisplayData = data.slice(4);
+  const rowsWithIndex = rawDisplayData.map((row, index) => ({
+    row,
+    originalIndex: index + 4,
+  }));
+
+  const filteredDisplayData = (() => {
     if (!searchTerm.trim()) return rowsWithIndex;
-
-    const normalize = (text: string) =>
-      text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
 
     const normalizedTerm = normalize(searchTerm);
 
@@ -97,7 +97,7 @@ export default function GoogleCsvPage() {
 
       return descMatch || tussMatch;
     });
-  }, [data, searchTerm, headerRow]);
+  })();
 
   useEffect(() => {
     fetchData();

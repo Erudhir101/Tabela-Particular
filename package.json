@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
+    "babel-plugin-react-compiler": "^1.0.0",
     "canvg": "^4.0.3",
     "googleapis": "^171.0.0",
     "jspdf": "^4.0.0",

@@ -67,7 +67,7 @@ const AccordionItem = ({
           <span
             className={`font-medium text-sm transition-colors ${isOpen ? "text-blue-700" : "text-slate-700"}`}
           >
-            {item.Lactobacillus} -{item.titulo || item.descricao}
+            {item.titulo || item.descricao}
           </span>
           <div
             className={`transition-transform duration-300 ease-out text-slate-400 p-1 rounded-full hover:bg-slate-100 ${

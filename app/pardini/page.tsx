@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Canvg } from "canvg";
 
-// Optimized Cell Component to prevent typing lag
 const EditableCell = ({
   initialValue,
   onSave,
@@ -35,12 +34,70 @@ const EditableCell = ({
 
 export default function GoogleCsvPage() {
   const [data, setData] = useState<string[][]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [shouldScroll, setShouldScroll] = useState(false);
   const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const headerRow = data[3] || [];
+
+  const filteredDisplayData = useMemo(() => {
+    const rawDisplayData = data.slice(4);
+    const rowsWithIndex = rawDisplayData.map((row, index) => ({
+      row,
+      originalIndex: index + 4,
+    }));
+
+    if (!searchTerm.trim()) return rowsWithIndex;
+
+    const normalize = (text: string) =>
+      text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+    const normalizedTerm = normalize(searchTerm);
+
+    let descIndex = headerRow.findIndex(
+      (h) => h && h.toLowerCase().includes("descrição")
+    );
+    if (descIndex === -1)
+      descIndex = headerRow.findIndex(
+        (h) => h && h.toLowerCase().includes("descricao")
+      );
+
+    let tussIndex = headerRow.findIndex(
+      (h) => h && h.toLowerCase().includes("código tuss")
+    );
+    if (tussIndex === -1)
+      tussIndex = headerRow.findIndex(
+        (h) => h && h.toLowerCase().includes("codigo tuss")
+      );
+    if (tussIndex === -1)
+      tussIndex = headerRow.findIndex(
+        (h) => h && h.toLowerCase().includes("tuss")
+      );
+
+    return rowsWithIndex.filter(({ row }) => {
+      const descMatch =
+        descIndex !== -1
+          ? normalize(row[descIndex] || "").includes(normalizedTerm)
+          : false;
+      const tussMatch =
+        tussIndex !== -1
+          ? normalize(row[tussIndex] || "").includes(normalizedTerm)
+          : false;
+
+      if (descIndex === -1 && tussIndex === -1) {
+        return row.some((cell) => normalize(cell).includes(normalizedTerm));
+      }
+
+      return descMatch || tussMatch;
+    });
+  }, [data, searchTerm, headerRow]);
 
   useEffect(() => {
     fetchData();
@@ -264,9 +321,6 @@ export default function GoogleCsvPage() {
     );
   }
 
-  const displayData = data.slice(4);
-  const headerRow = data[3] || [];
-
   return (
     <main className="h-full bg-slate-100 py-6 px-4 sm:px-6 lg:px-8 overflow-hidden flex flex-col">
       <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
@@ -323,6 +377,21 @@ export default function GoogleCsvPage() {
           </div>
         )}
 
+        <div className="mb-4">
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+              🔍
+            </span>
+            <input
+              type="text"
+              placeholder="Buscar por descrição ou código TUSS..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            />
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col min-h-0">
           <div
             ref={tableContainerRef}
@@ -346,8 +415,8 @@ export default function GoogleCsvPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {displayData.map((row, rowIndex) => {
-                  const actualIndex = rowIndex + 4;
+                {filteredDisplayData.map(({ row, originalIndex }) => {
+                  const actualIndex = originalIndex;
                   return (
                     <tr
                       key={actualIndex}

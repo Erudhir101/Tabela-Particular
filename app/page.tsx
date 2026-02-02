@@ -290,7 +290,16 @@ export function SelectionFilter() {
   };
 
   const filteredItems = procedimentos.filter((item) =>
-    item.titulo.toLowerCase().includes(query.toLowerCase()),
+    item.titulo
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .includes(
+        query
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase(),
+      ),
   );
 
   const toggleItem = (item: Procedimento) => {

@@ -1,0 +1,59 @@
+Lactobacillus,descricao,preco,prazo,especialidade,titulo
+1,Avaliar se foi solicitado IMUNO-HISTOQUÍMICA,275,,GINECO,BIOPSIA DE ENDOMETRIO
+2,"(Fragmentos de bexiga, fragmentos de prostata, restos ovulares)",450,,,"BIOPSIA MULTIFRAGMENTOS (Ex: Restos Ovulares, RTU, diversos fragmentos de prostáta, entre outros)"
+3,Prazo: até 7 dias utéis (Frascos adicionais R$ 120),1000,7,UROLOGIA,BIOPSIA SEXTANTE - PROSTATA (Seis Frascos)
+4,"Prazo: até 7 dias utéis (Biópsia de pequenos fragmentos, estomago, intestino)",250,7,,"BIOPSIA SIMPLES (1º frasco - 250, R$ 2º em diante R$ 175)"
+5,Prazo: 5 dias utéis,75,5,GINECO,CITOLOGIA CONVENCIONAL
+6,"Tireóide, mama, pulmão Prazo: 5 dias utéis",175,5,,CITOLOGIA DE LÍQUIDOS
+7,Prazo: 5 dias utéis,99,5,GINECO,CITOLOGIA EM MEIO LÍQUIDO
+8,1º Frasco: R$ 450 | 2º Frasco: R$ 350 = Total R$ 800,450,,GINECO,"PEÇA DE COLO UTERINO - CONIZAÇÃO, CAF, LEEP ou a frio"
+9,ANEXO: Trompa Direita e Esquerda OU Ovário Direito e Esquerdo,515,,GINECO,HISTERECTOMIA (ÚTERO + 1 ANEXO BILATERAIS)
+10,"ANEXOS - tubas/trompas uterinas, ovários bilaterais",600,,GINECO,HISTERECTOMIA (ÚTERO + 2 ANEXOS BILATERAIS)
+11,Prazo: 30 dias (até 5 marcadores).,1250,30,,IMUNO-HISTOQUÍMICA
+12,R$ 350 por Lateralidade - 7 dias úteis. Caso tenha Cápsula Mamária adicionar R$ 350 / Lateralidade,350,7,MASTOLOGIA / PLASTICA,MAMOPLASTIA (DIREITA E ESQUERDA) - PARCEIRO CLINÍCA DE CIRURGIA PLÁSTICA
+13,R$ 350 por Lateralidade - 7 dias úteis. Caso tenha Cápsula Mamária adicionar R$ 350 / Lateralidade,350,7,MASTOLOGIA / PLASTICA,MAMOPLASTIA (DIREITA E ESQUERDA) - RECEPÇÃO
+14,,280,,GINECO,MYCOPLASMA HOMINIS/UREAPLASMA UREALYTICUM - PCR
+15,Candida albicans / dubliniensis / glabrata / krusei / lusitaniae / parapsilosis / tropicalis,199,5,GINECO,PAINEL CANDIDA
+16,Chlamydia / Neisseria / Mycoplasma genitalium & hominis / Trichomonas / Ureaplasma urealyticum & parvum,250,5,GINECO,PAINEL IST I (7 Patógenos)
+17,Herpes I/II / Chlamydia / Neisseria / Mycoplasma / Ureaplasma / Streptococcus agalactiae,599,5,GINECO,PAINEL IST IV
+18,Painel IST I + Streptococcus agalactiae,399,5,GINECO,PAINEL IST VIII ( IST I + Strep )
+19,"Herpes 1/2, Citomegalovirus, Haemophilus, LGV, Treponema, Varicella-zoster",199,5,GINECO,PAINEL ULCERA GENITAL
+20,"Atopobium, Bactérias Vaginose, Bacteroides, Gardnerella, Lactobacillus, Megasphaera, Mobiluncus",199,5,GINECO,PAINEL VAGINOSE
+21,Chlamydia trachomatis / Neisseria gonorrhoeae / Mycoplasma genitalium / Trichomonas vaginalis,180,5,GINECO,Painel X (4 Patógenos)
+22,,300,,GINECO,PCR - Herpes I e II
+23,Chlamydia trachomatis / Neisseria gonorrhoeae,170,5,GINECO,PCR CLAMÍDIA/ GONOCOCOS
+24,Genotipagem 28 tipos,340,5,GINECO,PCR HPV GENOTIPAGEM 28 TIPOS
+25,Genotipagem 35 tipos,420,5,,PCR HPV GENOTIPAGEM 35 TIPOS
+26,HPV Quant 21,320,5,GINECO,PCR HPV Quant 21
+27,,275,5,GINECO,PCR PARA HPV A/B
+28,,199,5,GINECO,PCR HPV ALTO RISCO
+29,"Peças grandes, inteiras, com anexos, várias análises",499,7,,PEÇA CIRURGICA COMPLEXA
+30,Mama observar a lateralidade,250,7,,PEÇA CIRURGICA SIMPLES (Ex: Mama)
+31,Fator V Leiden / Protombina / MTHFR C677T / MTHFR A1298,450,,GINECO,Perfil de Trombose (06 mutações)
+32,Se Gemelar aplicar 2x o valor,515,10,GINECO,"PLACENTA, CORDÃO E MEMBRANAS"
+33,Até 5 lâminas. (Adicional de R$ 30 por lâmina),250,,,"PUNCAO ASPIRATIVA PAAF (Tireoide, Mama, Pulmão)"
+34,Streptococcus Agalactiae,180,5,GINECO,STREPTOCOCCUS AGALACTIAE - PCR - MEIO LÍQUIDO
+35,,250,,,BIOPSIA DE VESICULA BILIAR
+36,Ex: Nódulo de Mama,250,,,CORE BIOPSY / Frasco
+37,1 LATERALIDADE,195,,PLASTICA,CAPSULA MAMÁRIA >> MAMOPLASTIA
+38,APENAS PARTICULAR Requer AUTORIZAÇÃO. Não realizamos sem a placenta.,1400,,GINECO,INVESTIGAÇÃO HISTOPATOLÓGICA FETO-PLACENTÁRIA
+39,Pequenos Fragmentos para investigação (1 ou 2 fragmentos),450,7,GINECO,BIOPSIA DE COLO UTERINO
+40,Pequenos Fragmentos para investigação,250,7,GINECO,BIOPSIA DE POLIPO
+41,"Próstata, Vesículas Seminais, Linfonodos Pélvicos, Margens Cirúrgicas",1350,7,UROLOGIA,PROSTATECTOMIA RADICAL
+42,"Dentes, costela, ossos no geral e unhas. Pedir Orçamento.",,,,Osso com e sem tumor
+43,Fator V Leiden / Protombina / MTHFR C677T / MTHFR A1298C,250,,GINECO,Perfil de Trombose (04 mutações)
+44,Genes: ADAMTS13 F2 F5 PROC PROS1 SERPINC1,2877,45,,Painel de Trombofilias
+45,Verificar se a amostra é CONVENCIONAL.,75,,GINECO,Bacterioscopia - Coloração de Gram - CONVENCIONAL
+46,Verificar se a amostra é EM MEIO LIQUÍDO.,99,,GINECO,Bacterioscopia - Coloração de Gram - MEIO LIQUÍDO
+47,40310124,150,7,,CULTURA SELETIVA PARA STREPTOCOCCUS GRUPO B
+48,40310124,120,7,,CULTURA BACTERIOLÓGICA
+49,40310400 + 40310418,150,7,,CULTURA + ANTIBIOGRAMA
+50,40310140 + 40310604,150,25,,CULTURA PARA FUNGOS + ANTIFUNGIGRAMA
+51,,75,5,,Micológico Direto
+52,Não realizamos,,,,Nefrectomia (Peça - Rim)
+53,"Lactobacillus, Gardnerella, Prevotella, Candida, ISTs...",299,7,GINECO,Microbioma Vaginal
+54,,450,7,GINECO,Ressecção Transuretral - RTU de Bexiga ou Prostata
+55,,450,7,,Pele - Por frasco
+56,Prazo: 30 dias (até 5 marcadores).,900,30,,IMUNO-HISTOQUÍMICA - SEGUNDO BLOCO
+57,,350,7,GINECO,Painel Lactobacillus
+58,40310140,100,25,,CULTURA PARA FUNGOS (SECREÇÃO VAGINAL)

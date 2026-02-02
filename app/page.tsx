@@ -67,7 +67,7 @@ const AccordionItem = ({
           <span
             className={`font-medium text-sm transition-colors ${isOpen ? "text-blue-700" : "text-slate-700"}`}
           >
-            {item.titulo || item.descricao}
+            {item.Lactobacillus} -{item.titulo || item.descricao}
           </span>
           <div
             className={`transition-transform duration-300 ease-out text-slate-400 p-1 rounded-full hover:bg-slate-100 ${
@@ -157,12 +157,7 @@ export function SelectionFilter() {
       if (error) {
         console.error("Error fetching data from Supabase:", error);
       } else if (data) {
-        const uniqueData = [
-          ...new Map(
-            data.map((item) => [item.descricao.toLocaleLowerCase(), item]),
-          ).values(),
-        ];
-        setProcedimentos(uniqueData);
+        setProcedimentos(data);
       }
       setLoading(false);
     };
@@ -290,7 +285,7 @@ export function SelectionFilter() {
   };
 
   const filteredItems = procedimentos.filter((item) =>
-    item.titulo
+    (item.titulo || item.descricao || "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
@@ -327,7 +322,6 @@ export function SelectionFilter() {
   return (
     <>
       <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in-up">
-        {/* Coluna da Esquerda - Busca e Lista */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="bg-white opacity-90 rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -335,6 +329,7 @@ export function SelectionFilter() {
                 🔍
               </span>
               Buscar Procedimentos
+              <span>{procedimentos.length}</span>
             </h2>
             <div className="relative">
               <input
@@ -356,9 +351,9 @@ export function SelectionFilter() {
 
             <div className="mt-4 border border-slate-100 rounded-xl overflow-hidden max-h-125 overflow-y-auto custom-scrollbar shadow-sm bg-white">
               <div className="divide-y divide-slate-100">
-                {filteredItems.map((item) => (
+                {filteredItems.map((item, index) => (
                   <AccordionItem
-                    key={item.descricao}
+                    key={`filtered-${index}-${item.descricao || item.titulo}`}
                     item={item}
                     isSelected={selectedItems.includes(item)}
                     onToggle={toggleItem}
@@ -491,9 +486,9 @@ export function SelectionFilter() {
                   Itens Selecionados
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {selectedItems.map((item) => (
+                  {selectedItems.map((item, index) => (
                     <span
-                      key={item.descricao}
+                      key={`selected-${index}-${item.descricao || item.titulo}`}
                       onClick={() => toggleItem(item)}
                       className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 hover:bg-red-100 hover:text-red-700 cursor-pointer transition-colors duration-200"
                     >

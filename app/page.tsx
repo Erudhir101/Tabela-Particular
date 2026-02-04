@@ -530,7 +530,7 @@ export function SelectionFilter() {
                 }}
                 className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-md shadow-blue-500/20 active:scale-95"
               >
-                Sim (Atendido)
+                particular
               </button>
               <button
                 onClick={() => {

@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.93.3",
     "babel-plugin-react-compiler": "^1.0.0",
     "canvg": "^4.0.3",

@@ -6,13 +6,13 @@ import path from "path";
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const imageFiles = formData.getAll("image") as File[];
+    const uploadedFiles = formData.getAll("files") as File[];
     const proceduresJson = formData.get("procedures") as string;
     const procedures = proceduresJson ? JSON.parse(proceduresJson) : [];
 
-    if (imageFiles.length === 0) {
+    if (uploadedFiles.length === 0) {
       return NextResponse.json(
-        { error: "At least one image is required." },
+        { error: "At least one image or PDF is required." },
         { status: 400 },
       );
     }
@@ -39,24 +39,24 @@ export async function POST(request: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    let fullPrompt = `${promptContent}\n\nAnalise as imagens do pedido médico anexas e extraia os nomes dos exames.`;
-
+    let fullPrompt = `${promptContent}\n\nAnalise os arquivos do pedido médico anexos e extraia os nomes dos exames.`;
+    
     if (procedures.length > 0) {
       fullPrompt += `\n\nAlém disso, tente encontrar o correspondente mais próximo para cada exame identificado na seguinte lista de procedimentos disponíveis (retorne exatamente o nome que está na lista):\n\n${procedures.join("\n")}\n\nNo JSON de retorno, use obrigatoriamente esta estrutura:\n{\n  "exams": [\n    { "name": "nome no pedido", "matched": "nome exato na lista ou null" },\n    ...\n  ]\n}`;
     }
 
     const promptParts: any[] = [fullPrompt];
 
-    for (const imageFile of imageFiles) {
-      const arrayBuffer = await imageFile.arrayBuffer();
+    for (const file of uploadedFiles) {
+      const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const base64Image = buffer.toString("base64");
+      const base64Data = buffer.toString("base64");
       promptParts.push({
         inlineData: {
-          data: base64Image,
-          mimeType: imageFile.type,
+          data: base64Data,
+          mimeType: file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg'),
         },
       });
     }

@@ -12,6 +12,7 @@ interface Procedimento {
   prazo: number;
   especialidade: any;
   titulo: string;
+  quantidade?: number;
   [key: string]: any;
 }
 
@@ -19,45 +20,66 @@ const AccordionItem = ({
   item,
   isSelected,
   onToggle,
+  onQuantityChange,
 }: {
   item: Procedimento;
   isSelected: boolean;
   onToggle: (item: Procedimento) => void;
+  onQuantityChange?: (item: Procedimento, quantity: number) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="border-b border-slate-100 last:border-0 bg-white opacity-80 group">
       <div className="flex items-center justify-between p-4 transition-colors hover:bg-slate-100">
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggle(item);
-          }}
-          className="cursor-pointer p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"
-        >
+        <div className="flex items-center gap-3">
           <div
-            className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${
-              isSelected
-                ? "bg-blue-500 border-blue-500 text-white shadow-sm scale-110"
-                : "border-slate-300 bg-white group-hover:border-blue-300"
-            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle(item);
+            }}
+            className="cursor-pointer p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"
           >
-            {isSelected && (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-3.5 h-3.5"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            )}
+            <div
+              className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${
+                isSelected
+                  ? "bg-blue-500 border-blue-500 text-white shadow-sm scale-110"
+                  : "border-slate-300 bg-white group-hover:border-blue-300"
+              }`}
+            >
+              {isSelected && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-3.5 h-3.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </div>
           </div>
+
+          {isSelected && onQuantityChange && (
+            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase px-1">Tam</span>
+              <input
+                type="number"
+                min="1"
+                value={item.quantidade || 1}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) onQuantityChange(item, val);
+                }}
+                className="w-12 h-7 text-center text-sm font-bold bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              />
+            </div>
+          )}
         </div>
 
         <div
@@ -170,14 +192,40 @@ export function SelectionFilter() {
       typeof item.preco === "number"
         ? item.preco
         : parseFloat(String(item.preco).replace(/,/g, ""));
-    return acc + (price || 0);
+    return acc + (price || 0) * (item.quantidade || 1);
   }, 0);
+
+  const updateQuantity = (item: Procedimento, newQty: number) => {
+    setSelectedItems((prev) =>
+      prev.map((i) =>
+        (i.titulo || i.descricao) === (item.titulo || item.descricao)
+          ? { ...i, quantidade: Math.max(1, newQty) }
+          : i,
+      ),
+    );
+  };
+
+  const toggleItem = (item: Procedimento) => {
+    const isAlreadySelected = selectedItems.some(
+      (i) => (i.titulo || i.descricao) === (item.titulo || item.descricao),
+    );
+    if (isAlreadySelected) {
+      setSelectedItems(
+        selectedItems.filter(
+          (i) => (i.titulo || i.descricao) !== (item.titulo || i.descricao),
+        ),
+      );
+    } else {
+      setSelectedItems([...selectedItems, { ...item, quantidade: 1 }]);
+    }
+    setQuery("");
+  };
 
   // Preços calculados
   const precoCartao2X =
     selectedItems.length === 1 &&
     selectedItems[0].DESCRIÇÃO === "PLACENTA, CORDÃO E MEMBRANAS"
-      ? 480
+      ? 480 * (selectedItems[0].quantidade || 1)
       : selectedItems.length >= 2
         ? 0.96 * totalValue
         : totalValue;
@@ -185,7 +233,7 @@ export function SelectionFilter() {
   const precoPix =
     selectedItems.length === 1 &&
     selectedItems[0].DESCRIÇÃO === "PLACENTA, CORDÃO E MEMBRANAS"
-      ? 450
+      ? 450 * (selectedItems[0].quantidade || 1)
       : selectedItems.length >= 2
         ? 0.92 * totalValue
         : totalValue;
@@ -236,18 +284,20 @@ export function SelectionFilter() {
     doc.setFontSize(16);
     doc.text("Orçamento de Procedimentos", 14, 40);
 
-    const tableColumn = ["Título", "Preço (R$)", "Prazo"];
+    const tableColumn = ["Título", "Qtd", "Preço Un. (R$)", "Total (R$)", "Prazo"];
     const tableRows: (string | number)[][] = [];
 
     selectedItems.forEach((item) => {
+      const price = typeof item.preco === "number"
+        ? item.preco
+        : parseFloat(String(item.preco).replace(/,/g, ""));
+      const qty = item.quantidade || 1;
+      
       const itemData = [
-        item.titulo,
-        (typeof item.preco === "number"
-          ? item.preco
-          : parseFloat(String(item.preco).replace(/,/g, ""))
-        ).toLocaleString("pt-BR", {
-          minimumFractionDigits: 2,
-        }),
+        item.titulo || item.descricao,
+        qty,
+        price.toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+        (price * qty).toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
         item.prazo ? `${item.prazo} dias` : "-",
       ];
       tableRows.push(itemData);
@@ -265,11 +315,15 @@ export function SelectionFilter() {
       foot: [
         [
           "Total PIX",
+          "",
+          "",
           finalPrecoPix.toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
           prazoMaximo > 0 ? `${prazoMaximo} dias` : "-",
         ],
         [
           "Total Cartão 2x",
+          "",
+          "",
           finalPrecoCartao.toLocaleString("pt-BR", {
             minimumFractionDigits: 2,
           }),
@@ -296,15 +350,6 @@ export function SelectionFilter() {
           .toLowerCase(),
       ),
   );
-
-  const toggleItem = (item: Procedimento) => {
-    if (selectedItems.includes(item)) {
-      setSelectedItems(selectedItems.filter((i) => i !== item));
-    } else {
-      setSelectedItems([...selectedItems, item]);
-    }
-    setQuery("");
-  };
 
   if (loading) {
     return (
@@ -355,14 +400,20 @@ export function SelectionFilter() {
 
             <div className="mt-4 border border-slate-100 rounded-xl overflow-hidden max-h-125 overflow-y-auto custom-scrollbar shadow-sm bg-white">
               <div className="divide-y divide-slate-100">
-                {filteredItems.map((item, index) => (
-                  <AccordionItem
-                    key={`filtered-${index}-${item.descricao || item.titulo}`}
-                    item={item}
-                    isSelected={selectedItems.includes(item)}
-                    onToggle={toggleItem}
-                  />
-                ))}
+                {filteredItems.map((item, index) => {
+                  const selectedItem = selectedItems.find(
+                    (i) => (i.titulo || i.descricao) === (item.titulo || item.descricao)
+                  );
+                  return (
+                    <AccordionItem
+                      key={`filtered-${index}-${item.descricao || item.titulo}`}
+                      item={selectedItem || item}
+                      isSelected={!!selectedItem}
+                      onToggle={toggleItem}
+                      onQuantityChange={updateQuantity}
+                    />
+                  );
+                })}
                 {filteredItems.length === 0 && (
                   <div className="p-8 text-center flex flex-col items-center justify-center text-slate-400">
                     <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3 text-2xl">
@@ -483,25 +534,64 @@ export function SelectionFilter() {
               </button>
             </div>
 
-            {/* Tags Selecionadas */}
+            {/* Itens Selecionados - Tabela */}
             {selectedItems.length > 0 && (
               <div className="mt-6 pt-6 border-t border-slate-100">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">
                   Itens Selecionados
                 </span>
-                <div className="flex flex-wrap gap-2">
-                  {selectedItems.map((item, index) => (
-                    <span
-                      key={`selected-${index}-${item.descricao || item.titulo}`}
-                      onClick={() => toggleItem(item)}
-                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 hover:bg-red-100 hover:text-red-700 cursor-pointer transition-colors duration-200"
-                    >
-                      {item.descricao}
-                      <span className="ml-1.5 font-bold text-lg leading-none">
-                        ×
-                      </span>
-                    </span>
-                  ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left text-slate-500">
+                    <thead className="text-xs text-slate-400 uppercase bg-slate-50/50">
+                      <tr>
+                        <th className="px-2 py-2 font-medium">Procedimento</th>
+                        <th className="px-2 py-2 font-medium text-center">Tam/Qtd</th>
+                        <th className="px-2 py-2 font-medium text-right">Subtotal</th>
+                        <th className="px-2 py-2"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {selectedItems.map((item, index) => {
+                        const price = typeof item.preco === "number"
+                          ? item.preco
+                          : parseFloat(String(item.preco).replace(/,/g, ""));
+                        const subtotal = (price || 0) * (item.quantidade || 1);
+                        
+                        return (
+                          <tr key={`selected-row-${index}`} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="px-2 py-3 font-medium text-slate-700 max-w-[150px] truncate">
+                              {item.titulo || item.descricao}
+                            </td>
+                            <td className="px-2 py-3">
+                              <div className="flex justify-center">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={item.quantidade || 1}
+                                  onChange={(e) => updateQuantity(item, parseInt(e.target.value))}
+                                  className="w-12 h-7 text-center text-xs font-bold bg-white border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500"
+                                />
+                              </div>
+                            </td>
+                            <td className="px-2 py-3 text-right font-semibold text-slate-700">
+                              {subtotal.toLocaleString("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              })}
+                            </td>
+                            <td className="px-2 py-3 text-right">
+                              <button
+                                onClick={() => toggleItem(item)}
+                                className="text-slate-300 hover:text-red-500 transition-colors"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}

@@ -66,7 +66,9 @@ const AccordionItem = ({
 
           {isSelected && onQuantityChange && (
             <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase px-1">Tam</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase px-1">
+                Tam
+              </span>
               <input
                 type="number"
                 min="1"
@@ -284,15 +286,22 @@ export function SelectionFilter() {
     doc.setFontSize(16);
     doc.text("Orçamento de Procedimentos", 14, 40);
 
-    const tableColumn = ["Título", "Qtd", "Preço Un. (R$)", "Total (R$)", "Prazo"];
+    const tableColumn = [
+      "Título",
+      "Qtd",
+      "Preço Un. (R$)",
+      "Total (R$)",
+      "Prazo",
+    ];
     const tableRows: (string | number)[][] = [];
 
     selectedItems.forEach((item) => {
-      const price = typeof item.preco === "number"
-        ? item.preco
-        : parseFloat(String(item.preco).replace(/,/g, ""));
+      const price =
+        typeof item.preco === "number"
+          ? item.preco
+          : parseFloat(String(item.preco).replace(/,/g, ""));
       const qty = item.quantidade || 1;
-      
+
       const itemData = [
         item.titulo || item.descricao,
         qty,
@@ -402,7 +411,9 @@ export function SelectionFilter() {
               <div className="divide-y divide-slate-100">
                 {filteredItems.map((item, index) => {
                   const selectedItem = selectedItems.find(
-                    (i) => (i.titulo || i.descricao) === (item.titulo || item.descricao)
+                    (i) =>
+                      (i.titulo || i.descricao) ===
+                      (item.titulo || item.descricao),
                   );
                   return (
                     <AccordionItem
@@ -545,20 +556,28 @@ export function SelectionFilter() {
                     <thead className="text-xs text-slate-400 uppercase bg-slate-50/50">
                       <tr>
                         <th className="px-2 py-2 font-medium">Procedimento</th>
-                        <th className="px-2 py-2 font-medium text-center">Tam/Qtd</th>
-                        <th className="px-2 py-2 font-medium text-right">Subtotal</th>
+                        <th className="px-2 py-2 font-medium text-center">
+                          Tam/Qtd
+                        </th>
+                        <th className="px-2 py-2 font-medium text-right">
+                          Subtotal
+                        </th>
                         <th className="px-2 py-2"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {selectedItems.map((item, index) => {
-                        const price = typeof item.preco === "number"
-                          ? item.preco
-                          : parseFloat(String(item.preco).replace(/,/g, ""));
+                        const price =
+                          typeof item.preco === "number"
+                            ? item.preco
+                            : parseFloat(String(item.preco).replace(/,/g, ""));
                         const subtotal = (price || 0) * (item.quantidade || 1);
-                        
+
                         return (
-                          <tr key={`selected-row-${index}`} className="hover:bg-slate-50/50 transition-colors">
+                          <tr
+                            key={`selected-row-${index}`}
+                            className="hover:bg-slate-50/50 transition-colors"
+                          >
                             <td className="px-2 py-3 font-medium text-slate-700 max-w-[150px] truncate">
                               {item.titulo || item.descricao}
                             </td>
@@ -568,7 +587,12 @@ export function SelectionFilter() {
                                   type="number"
                                   min="1"
                                   value={item.quantidade || 1}
-                                  onChange={(e) => updateQuantity(item, parseInt(e.target.value))}
+                                  onChange={(e) =>
+                                    updateQuantity(
+                                      item,
+                                      parseInt(e.target.value),
+                                    )
+                                  }
                                   className="w-12 h-7 text-center text-xs font-bold bg-white border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500"
                                 />
                               </div>
@@ -584,7 +608,19 @@ export function SelectionFilter() {
                                 onClick={() => toggleItem(item)}
                                 className="text-slate-300 hover:text-red-500 transition-colors"
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
                               </button>
                             </td>
                           </tr>
@@ -620,7 +656,7 @@ export function SelectionFilter() {
                 }}
                 className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-md shadow-blue-500/20 active:scale-95"
               >
-                particular
+                Particular
               </button>
               <button
                 onClick={() => {

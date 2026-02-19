@@ -278,11 +278,9 @@ export function SelectionFilter() {
   };
 
   // Preços calculados (PIX e Cartão mantidos sobre o valor já com desconto per-item)
-  const pixBeforeManual = roundCeil(selectedItems.length >= 2 ? 0.92 * discountedTotalValue : discountedTotalValue);
-  const manualDiscountAmount = roundCeil(pixBeforeManual * (manualPixDiscountPercent / 100));
-  const finalPrecoPix = roundCeil(pixBeforeManual - manualDiscountAmount);
-  
-  const finalPrecoCartao = roundCeil(selectedItems.length >= 2 ? 0.96 * discountedTotalValue : discountedTotalValue);
+  const manualDiscountAmount = roundCeil(discountedTotalValue * (manualPixDiscountPercent / 100));
+  const finalPrecoPix = roundCeil(discountedTotalValue - manualDiscountAmount);
+  const finalPrecoCartao = discountedTotalValue;
 
   const precoPixNaoAtendido = roundCeil(discountedTotalValue > 500 ? 0.7 * discountedTotalValue : 0.8 * discountedTotalValue);
   const precoCartao2XNaoAtendido = roundCeil(discountedTotalValue > 500 ? 0.75 * discountedTotalValue : 0.85 * discountedTotalValue);
@@ -475,7 +473,7 @@ export function SelectionFilter() {
                   </div>
 
                   <span className="text-[10px] text-green-600 mt-1">
-                    {selectedItems.length >= 2 ? "Desconto progressivo aplicado" : "Preço à vista"}
+                    {manualPixDiscountPercent > 0 ? "Desconto manual aplicado" : "Preço à vista"}
                   </span>
                 </div>
                 <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 flex flex-col">

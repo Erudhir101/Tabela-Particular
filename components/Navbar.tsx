@@ -27,14 +27,24 @@ export default function Navbar() {
                 Tabela Particular
               </Link>
               <Link
-                href="/pardini"
+                href="/pardini-orcamento"
                 className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
-                  pathname === "/google-csv"
+                  pathname === "/pardini-orcamento"
                     ? "border-blue-500 text-slate-900"
                     : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
                 }`}
               >
-                Google Docs CSV
+                Orçamento Pardini
+              </Link>
+              <Link
+                href="/pardini"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
+                  pathname === "/pardini"
+                    ? "border-blue-500 text-slate-900"
+                    : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                }`}
+              >
+                Gerenciar Pardini
               </Link>
             </div>
           </div>
@@ -47,10 +57,16 @@ export default function Navbar() {
                 Home
               </Link>
               <Link
-                href="/google-csv"
-                className={`text-sm font-medium ${pathname === "/google-csv" ? "text-blue-600" : "text-slate-500"}`}
+                href="/pardini-orcamento"
+                className={`text-sm font-medium ${pathname === "/pardini-orcamento" ? "text-blue-600" : "text-slate-500"}`}
               >
-                Google
+                Orçamento
+              </Link>
+              <Link
+                href="/pardini"
+                className={`text-sm font-medium ${pathname === "/pardini" ? "text-blue-600" : "text-slate-500"}`}
+              >
+                Docs
               </Link>
             </div>
           </div>
